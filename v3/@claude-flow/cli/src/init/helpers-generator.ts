@@ -77,14 +77,13 @@ set -e
 
 echo "🔍 Running Ruflo pre-commit checks..."
 
-# Get staged files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
-
-# Run validation for each staged file
-for FILE in $STAGED_FILES; do
+# Run validation for each staged file. NUL-delimited so names containing
+# spaces, wildcards or non-ASCII characters reach the validator intact
+# (an unquoted \`for FILE in $LIST\` word-splits and glob-expands them).
+git diff --cached --name-only -z --diff-filter=ACM | while IFS= read -r -d '' FILE; do
   if [[ "$FILE" =~ \\.(ts|js|tsx|jsx)$ ]]; then
     echo "  Validating: $FILE"
-    npx ${ourSpec('@claude-flow/cli', channel)} hooks pre-edit --file "$FILE" --validate-syntax 2>/dev/null || true
+    npx ${ourSpec('@claude-flow/cli', channel)} hooks pre-edit --file "$FILE" --validate-syntax 2>/dev/null </dev/null || true
   fi
 done
 
