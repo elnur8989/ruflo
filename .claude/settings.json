@@ -44,9 +44,6 @@
       "Bash(rm -rf /)"
     ]
   },
-  "enabledMcpjsonServers": [
-    "claude-flow"
-  ],
   "hooks": {
     "PreToolUse": [
       {
@@ -103,6 +100,12 @@
     "SessionEnd": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'D=\"${CLAUDE_PROJECT_DIR:-.}\"; [ -f \"$D/.claude/helpers/auto-memory-hook.mjs\" ] || D=\"${HOME}\"; exec node \"$D/.claude/helpers/auto-memory-hook.mjs\" sync'",
+            "timeout": 30,
+            "continueOnError": true
+          },
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/hook-handler.cjs\" session-end",
